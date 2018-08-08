@@ -18,12 +18,12 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="54dp">
+        android:layout_marginEnd="60dp">
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
             android:layout_marginTop="13dp"
             >
 
@@ -46,9 +46,12 @@
         android:id="@+id/imageView"
         android:layout_width="42dp"
         android:layout_height="42dp"
+        android:layout_marginEnd="13dp"
+        android:layout_marginTop="13dp"
         android:src="@drawable/gps"
         map:layout_anchor="@+id/map"
-        map:layout_anchorGravity="right|top" />
+        map:layout_anchorGravity="right|top"
+        android:onClick="StartGPS"/>
 
 
 </android.support.design.widget.CoordinatorLayout>

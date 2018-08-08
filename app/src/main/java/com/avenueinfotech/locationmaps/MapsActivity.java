@@ -2,9 +2,11 @@ package com.avenueinfotech.locationmaps;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -29,6 +31,9 @@ import android.widget.Toast;
 
 import com.avenueinfotech.locationmaps.R;
 import com.avenueinfotech.locationmaps.utils.GPSTracker;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -97,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 //    private AdView mAdView;
 //
-//    private InterstitialAd mInterstitialAd;
+    private InterstitialAd mInterstitialAd;
 
     public final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 
@@ -113,21 +118,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         setContentView(R.layout.activity_maps);
 //        setContentView(R.layout.activity_maps);
-//        MobileAds.initialize(getApplicationContext(), "ca-app-pub-1183672799205641~2981952761");
+        MobileAds.initialize(getApplicationContext(), "ca-app-pub-1183672799205641~2611322257");
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, 0, this)
-                .addApi(Places.GEO_DATA_API)
-                .addApi(Places.PLACE_DETECTION_API)
-                .addApi(ActivityRecognition.API)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
 
-        mGoogleApiClient.connect();
 
 
 
@@ -159,6 +154,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
 //            GeneralUtils.createDirectory();
+
+
         }
 
         dialog = new ProgressDialog(MapsActivity.this);
@@ -204,9 +201,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        mInterstitialAd = new InterstitialAd(this);
 //        mInterstitialAd.setAdUnitId("ca-app-pub-1183672799205641/8564096630");
 
-//        mInterstitialAd = new InterstitialAd(this);
-//        mInterstitialAd.setAdUnitId("ca-app-pub-1183672799205641/8564096630");
-//        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId("ca-app-pub-1183672799205641/8733360550");
+        mInterstitialAd.loadAd(new AdRequest.Builder().build());
 
     }
 
@@ -277,6 +274,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, 0, this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .addApi(ActivityRecognition.API)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
+        mGoogleApiClient.connect();
+
+        displayLocation();
+
+
+
+
         // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
@@ -285,6 +299,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().isCompassEnabled();
         mMap.getUiSettings().isZoomControlsEnabled();
         mMap.getUiSettings().setCompassEnabled(true);
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+
     }
 
     Marker mk = null;
@@ -341,7 +358,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Dialog dialog = api.getErrorDialog(this, isAvailable, 0);
             dialog.show();
         } else {
-//            Toast.makeText(this, "Cannot Connect To Play Services", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No Play Services detected", Toast.LENGTH_SHORT).show();
         }
         return false;
     }
@@ -353,6 +370,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mGoogleApiClient.connect();
         }
 //        startLocationUpdates();
+
+        displayLocation();
     }
 
     @Override
@@ -408,8 +427,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             } else {
 
-                Toast.makeText(this, "Enable GPS location on the device for tracking",
-                        Toast.LENGTH_LONG).show();
+//                Toast.makeText(this, "Enabling GPS for location tracking",
+//                        Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -445,15 +464,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } else {
             LocationServices.FusedLocationApi.requestLocationUpdates(
                     mGoogleApiClient, mLocationRequest,  this);
+
         }
     }
 
 
     protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
+//        LocationServices.FusedLocationApi.removeLocationUpdates(
+//                mGoogleApiClient, this);
 
     }
+
+
 
     @Override
     public void onConnected(@Nullable Bundle arg0) {
@@ -463,6 +485,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mRequestingLocationUpdates) {
             startLocationUpdates();
         }
+
+        Toast.makeText(this, "Click GPS Icon for location tracking",
+                Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -480,13 +506,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         // Assign the new location
-        mLastLocation = location;
-
-        Toast.makeText(getApplicationContext(), "Location changed",
-                Toast.LENGTH_SHORT).show();
+//        mLastLocation = location;
+//
+//        if(location == null) {
+//            Toast.makeText(getApplicationContext(), "can't get current Location",
+//                    Toast.LENGTH_SHORT).show();
+//        } else {
+//            LatLng ll = new LatLng(location.getLatitude(), location.getLongitude());
+//            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, 18);
+//            mMap.animateCamera(update);
+//
+//        }
 
         // Displaying the new location on UI
-        displayLocation();
+//        displayLocation();
     }
 
     public static void animateMarker(final Location destination, final Marker marker) {
@@ -533,6 +566,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return (result + 360) % 360;
     }
 
+    public void StartGPS(View view) {
+        displayLocation();
+        startLocationUpdates();
+    }
+
     private interface LatLngInterpolator {
         LatLng interpolate(float fraction, LatLng a, LatLng b);
 
@@ -560,4 +598,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //            e.printStackTrace();
 //        }
 //    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+        } else {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+            builder.setMessage("Do you want to Quit?");
+            builder.setCancelable(true);
+            builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.cancel();
+                }
+            });
+            builder.setPositiveButton("Quit!", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
+    }
 }

@@ -32,6 +32,7 @@ import android.widget.Toast;
 import com.avenueinfotech.locationmaps.R;
 import com.avenueinfotech.locationmaps.utils.GPSTracker;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
@@ -100,7 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-//    private AdView mAdView;
+    private AdView mAdView;
 //
     private InterstitialAd mInterstitialAd;
 
@@ -186,11 +187,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 //        // Load an ad into the AdMob banner view.
-//        adView = (AdView) findViewById(R.id.adView);
-//
-//        AdRequest adRequest = new AdRequest.Builder()
-//                .setRequestAgent("android_studio:ad_template").build();
-//        adView.loadAd(adRequest);
+        mAdView = (AdView) findViewById(R.id.adView);
+
+        AdRequest adRequest = new AdRequest.Builder()
+                .setRequestAgent("android_studio:ad_template").build();
+        mAdView.loadAd(adRequest);
 //
 
 //        mAdView = findViewById(R.id.adView);
